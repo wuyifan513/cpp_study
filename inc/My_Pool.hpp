@@ -47,6 +47,21 @@ public:
             workers.push_back(thread(&My_Pool::work, &My_Pool));
         }
     }
+    void appendtast(const Task& t){
+        if(is_running){
+            unique_lock<mutex> lk(mux);
+            q.push(t);
+        }
+    }
+    void stop(){
+        {
+            unique_lock<mutex> lk(mux);
+            is_running = false;
+        }
+        for(int i = 0; i < num_thread; i ++){
+            if(workers[i].joinable()) workers[i].join();
+        }
+    }
     ~My_Pool(){};
 };
 
